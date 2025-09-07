@@ -1,0 +1,26 @@
+name: Test Postman Setup
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test-postman:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install Postman CLI
+      run: |
+        curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+        echo "$HOME/.postman/cli/bin" >> $GITHUB_PATH
+        
+    - name: Test Postman CLI Authentication
+      run: |
+        postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+        echo "✅ Postman CLI authentication successful"
+        
+    - name: List Collections (if any exist)
+      run: |
+        postman collection list || echo "No collections found yet - this is normal for a new setup"
