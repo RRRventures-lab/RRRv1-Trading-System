@@ -1,0 +1,59 @@
+name: Postman API Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install Postman CLI
+      run: |
+        curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+        echo "$HOME/.postman/cli/bin" >> $GITHUB_PATH
+        
+    - name: Login to Postman CLI
+      run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      
+    - name: Run API Tests
+      run: |
+        # Replace COLLECTION_ID with your actual collection ID from Postman
+        postman collection run "${{ vars.POSTMAN_COLLECTION_ID }}" \
+          --environment "${{ vars.POSTMAN_ENVIRONMENT_ID }}" \
+          --reporters cli,json \
+          --reporter-json-export postman-results.json
+          
+    - name: Upload test results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: postman-test-results
+        path: postman-results.json
+        
+    - name: API Governance Check (Enterprise only)
+      if: vars.ENABLE_API_GOVERNANCE == 'true'
+      run: |
+        # Replace API_ID with your actual API ID from Postman
+        postman api lint "${{ vars.POSTMAN_API_ID }}" \
+          --reporters cli,json \
+          --reporter-json-export governance-results.json
+          
+    - name: Upload governance results
+      uses: actions/upload-artifact@v3
+      if: vars.ENABLE_API_GOVERNANCE == 'true' && always()
+      with:
+        name: api-governance-results
+        path: governance-results.json

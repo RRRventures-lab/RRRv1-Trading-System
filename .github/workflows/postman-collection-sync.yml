@@ -1,0 +1,51 @@
+name: Sync Postman Collections
+
+on:
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync-collections:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install Postman CLI
+      run: |
+        curl -o- "https://dl-cli.pstmn.io/install/linux64.sh" | sh
+        echo "$HOME/.postman/cli/bin" >> $GITHUB_PATH
+        
+    - name: Login to Postman CLI
+      run: postman login --with-api-key ${{ secrets.POSTMAN_API_KEY }}
+      
+    - name: Create collections directory
+      run: mkdir -p collections
+      
+    - name: Export collections
+      run: |
+        # Export all collections from workspace
+        postman collection list --format json > collections/collection-list.json
+        
+        # You can add specific collection exports here
+        # postman collection get "${{ vars.POSTMAN_COLLECTION_ID }}" --format json > collections/my-collection.json
+        
+    - name: Commit and push if changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add collections/
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Auto-sync: Update Postman collections"
+          git push
+        fi
