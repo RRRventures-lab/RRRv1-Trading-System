@@ -1,0 +1,15 @@
+cdp-sdk
+polygon-api-client
+langchain
+langchain-anthropic
+anthropic
+pandas
+numpy
+scikit-learn
+requests
+websocket-client
+python-dotenv
+schedule
+aiohttp
+cryptography
+PyJWT
