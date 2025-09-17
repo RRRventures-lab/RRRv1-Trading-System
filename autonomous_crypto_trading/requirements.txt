@@ -13,3 +13,12 @@ schedule
 aiohttp
 cryptography
 PyJWT
+scipy
+networkx
+asyncio
+concurrent-futures
+matplotlib
+seaborn
+plotly
+ta-lib
+arch
