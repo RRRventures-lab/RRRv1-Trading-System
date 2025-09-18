@@ -483,6 +483,17 @@ class MultiAgentOrchestrator:
             NetworkEffectAgent
         )
 
+        # Optimization & Coordination Agents
+        from optimization_agents import (
+            HyperparameterTunerAgent,
+            CapitalAllocatorAgent,
+            LatencyOptimizerAgent,
+            RiskManagerAgent,
+            AdaptiveLearnerAgent,
+            ReportGenerator,
+            LogicMessage,
+        )
+
         self.agents = [
             # Core agents
             ScalpingAgent(),
@@ -503,6 +514,17 @@ class MultiAgentOrchestrator:
         self.logger.info(f"🤖 Initialized {len(self.agents)} specialized trading agents")
         for agent in self.agents:
             self.logger.info(f"  • {agent.agent_id}: {agent.strategy_name}")
+
+        # Setup optimization and coordination agents
+        self.tuner = HyperparameterTunerAgent(self.backtester, param_grid={})
+        self.allocator = CapitalAllocatorAgent()
+        self.latency_opt = LatencyOptimizerAgent()
+        self.risk_mgr = RiskManagerAgent()
+        self.learner = AdaptiveLearnerAgent(self.ml_model)
+        # Prepare report generator for iteration summaries
+        reports_dir = os.path.join(self.base_path, 'reports')
+        os.makedirs(reports_dir, exist_ok=True)
+        self.reporter = ReportGenerator(log_path=os.path.join(reports_dir, 'iteration_reports.log'))
 
     async def run_ultra_fast_cycle(self):
         """Ultra-fast trading cycle with concurrent agents"""
@@ -550,6 +572,16 @@ class MultiAgentOrchestrator:
                 # Log performance every 100 cycles
                 if self.metrics['total_signals'] % 100 == 0:
                     await self.log_performance()
+                    # Run optimization routines and record iteration summary
+                    latency_ms = self.latency_opt.optimize(lambda: None)
+                    risk_summary = self.risk_mgr.assess(self.execution_engine.trade_history)
+                    perf_map = {a.agent_id: a.performance.sharpe_ratio for a in self.agents}
+                    weights = self.allocator.allocate(perf_map)
+                    summary = (
+                        f"Cycle {self.metrics['total_signals']} | latency: {latency_ms:.2f}ms | "
+                        f"risk: {risk_summary} | weights: {weights}"
+                    )
+                    self.reporter.write_iteration_report(self.metrics['total_signals'], summary)
 
             except Exception as e:
                 self.logger.error(f"Cycle error: {e}")
