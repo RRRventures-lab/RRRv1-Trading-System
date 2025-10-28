@@ -1,0 +1,50 @@
+# RRRv1 Autonomous Trading System - Python Dependencies
+
+# Core SDK and Framework
+cdp-sdk>=0.3.0
+python-dotenv>=1.0.0
+pyyaml>=6.0
+
+# Market Data and APIs
+polygon-api-client>=1.0.0
+requests>=2.31.0
+aiohttp>=3.9.0
+
+# LLM and AI
+openai>=1.0.0
+anthropic>=0.7.0
+deepseek-api>=1.0.0
+perplexity-ai>=1.0.0
+mem0ai>=0.1.0
+
+# Data Processing
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+
+# Async Support
+asyncio>=3.4.3
+aiofiles>=23.2.0
+
+# Logging and Monitoring
+python-json-logger>=2.0.0
+rich>=13.0.0
+
+# Web3 and Blockchain
+web3>=6.0.0
+eth-account>=0.9.0
+
+# Testing
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+
+# Development
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Utilities
+python-dateutil>=2.8.0
+pytz>=2023.3
+requests-cache>=1.0.0
